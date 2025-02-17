@@ -16,8 +16,122 @@ let currentChatUser = null;
 let messageListener = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+
+    // Create the welcome panel element and style it dynamically (Frosted glass effect)
+    const welcomePanel = document.createElement("div");
+    welcomePanel.id = "welcome-panel";
+    welcomePanel.style.position = "absolute"; // Absolute positioning to position it relative to the page
+    welcomePanel.style.top = "-100px"; // Start off-screen
+    welcomePanel.style.background = "rgba(255, 255, 255, 0.8)"; // Reduced transparency for frosted glass effect
+    welcomePanel.style.borderRadius = "15px"; // Rounded corners
+    welcomePanel.style.border = "3px solid rgba(0, 0, 0, 0.7)"; // Increased thickness of black border
+    welcomePanel.style.padding = "20px";
+    welcomePanel.style.fontSize = "18px";
+    welcomePanel.style.textAlign = "center";
+    welcomePanel.style.width = "80%";
+    welcomePanel.style.maxWidth = "400px";
+    welcomePanel.style.zIndex = "9999"; // On top of everything else
+    welcomePanel.style.boxShadow = "0 10px 40px rgba(0, 0, 0, 0.3)"; // Soft shadow for depth
+    welcomePanel.style.transition = "top 0.5s ease, opacity 0.3s ease, transform 0.3s ease"; // Smooth animation
+    welcomePanel.style.opacity = "0"; // Start as invisible
+    welcomePanel.style.fontFamily = "'Inconsolata', monospace"; // Inconsolata font
+    welcomePanel.style.backdropFilter = "blur(15px)"; // Frosted glass effect
+    document.body.appendChild(welcomePanel);
+    
+    // Create the welcome message paragraph (Text in white)
+    const welcomeMessage = document.createElement("p");
+    welcomeMessage.style.color = "black"; // Ensure the text is white
+    welcomePanel.appendChild(welcomeMessage);
+    
+    // Create the continue button for the panel
+    const closePanelBtn = document.createElement("button");
+    closePanelBtn.textContent = "Continue";
+    closePanelBtn.style.background = "#333333"; // Dark background for button
+    closePanelBtn.style.border = "2px solid transparent"; // Initially no border
+    closePanelBtn.style.color = "white";
+    closePanelBtn.style.fontSize = "20px";
+    closePanelBtn.style.marginTop = "20px";
+    closePanelBtn.style.cursor = "pointer";
+    closePanelBtn.style.padding = "12px 30px"; // More padding for a rectangular button
+    closePanelBtn.style.borderRadius = "8px"; // Curved edges
+    closePanelBtn.style.transition = "background-color 0.3s ease, border-color 0.3s ease";
+    closePanelBtn.style.fontWeight = "bold";
+    closePanelBtn.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+    welcomePanel.appendChild(closePanelBtn);
+    
+    // Hover effect for button: border and color change
+    closePanelBtn.onmouseover = () => {
+        closePanelBtn.style.borderColor = "#ffffff"; // Border shows up on hover
+        closePanelBtn.style.backgroundColor = "#555555"; // Darker background on hover
+    };
+    closePanelBtn.onmouseout = () => {
+        closePanelBtn.style.borderColor = "transparent"; // No border on mouse out
+        closePanelBtn.style.backgroundColor = "#333333"; // Original background
+    };
+    
+    // Hover effect for the panel itself: subtle brightness increase
+    welcomePanel.onmouseover = () => {
+        welcomePanel.style.transform = "translateX(-50%) scale(1.05)"; // Slight scale-up
+        welcomePanel.style.boxShadow = "0 15px 50px rgba(0, 0, 0, 0.4)"; // Increase shadow on hover
+    };
+    welcomePanel.onmouseout = () => {
+        welcomePanel.style.transform = "translateX(-50%) scale(1)"; // Return to normal scale
+        welcomePanel.style.boxShadow = "0 10px 40px rgba(0, 0, 0, 0.3)"; // Return to original shadow
+    };
+    
+    // Add CSS for hover animation
+    const style = document.createElement('style');
+    style.innerHTML = 
+        `@keyframes hoverUpDown {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+            100% { transform: translateY(0); }
+        }`;
+    document.head.appendChild(style);
+
+
+    // Check if the user is new or returning
+    function checkIfNewUser(user) {
+        const creationTime = user.metadata.creationTime;
+        const lastSignInTime = user.metadata.lastSignInTime;
+    
+        if (creationTime === lastSignInTime) {
+            // New user
+            welcomeMessage.innerHTML = `Welcome, ${user.displayName}!`;
+        } else {
+            // Returning user
+            welcomeMessage.innerHTML = `Welcome back, ${user.displayName}!`;
+        }
+    
+        // Delay the animation of the welcome panel
+        setTimeout(() => {
+            // Show the welcome panel with slide-down animation
+            welcomePanel.style.opacity = "1"; // Make the panel visible
+            welcomePanel.style.top = "20px"; // Slide the panel down smoothly
+            // Apply the hover animation
+            welcomePanel.style.animation = "hoverUpDown 3s infinite ease-in-out"; // Infinite up and down animation
+        }, 500); // Delay by 500ms
+    }
+
+
+    // Close the welcome panel
+    closePanelBtn.onclick = () => {
+        welcomePanel.style.top = "-100px"; // Hide the panel again
+        welcomePanel.style.opacity = "0"; // Make it invisible again
+    
+        // After the panel is completely out of view, set it to display none
+        setTimeout(() => {
+            welcomePanel.style.display = "none"; // Remove the panel from the view
+        }, 500); // Match the transition duration
+    };
+
+
+
+
     auth.onAuthStateChanged(async (user) => {
-        if (!user) {
+        if (user) {
+            checkIfNewUser(user);
+        } else {
             // If user is not signed in, redirect to index page
             window.location.href = "index.html";
             return;
