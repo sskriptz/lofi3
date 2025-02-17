@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCZ - Sign In</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/qMfWZX99/Untitled-design-8-removebg-preview.png">
+    
+    <!-- Include Firebase SDK (non-modular) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        window.addEventListener("load", () => {
+            document.body.classList.add("loaded");
+        });
+
+
+        function revealContent() {
+            const overlay = document.getElementById("click-overlay");
+            const mainContent = document.getElementById("main-content");
+
+            overlay.style.opacity = "0";
+            overlay.style.pointerEvents = "none";
+            setTimeout(() => {
+                overlay.style.display = "none";
+                mainContent.style.display = "flex";
+                setTimeout(() => {
+                    mainContent.style.opacity = "1";
+                    mainContent.style.pointerEvents = "auto";
+                }, 50);
+            }, 500);
+
+            // Play background music when the button is clicked
+            const music = document.getElementById("background-music");
+            music.play().catch(() => console.log("Autoplay blocked, waiting for user interaction."));
+        }
+
+        // Firebase Configuration
+        const firebaseConfig = {
+    apiKey: "AIzaSyBLa2zdt4hxe348WHp-mfgIKwOlgghQS2w",
+    authDomain: "friend-84a46.firebaseapp.com",
+    projectId: "friend-84a46",
+    storageBucket: "friend-84a46.firebasestorage.app",
+    messagingSenderId: "1021505667527",
+    appId: "1:1021505667527:web:7cbb2f03c1bd9f3cd6d9e2"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Get UI Elements
+        let userId = null;
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const signInBtn = document.getElementById("sign-in-btn");
+            const signOutBtn = document.getElementById("sign-out-btn");
+            const userInfo = document.getElementById("user-info");
+
+            signInBtn.style.display = "none";
+            signOutBtn.style.display = "none";
+
+            function signInWithGoogle() {
+                // Show loading screen
+                document.getElementById("loading-overlay").style.display = "flex";
+                signInBtn.disabled = true; // Prevent multiple clicks
+                const provider = new firebase.auth.GoogleAuthProvider();
+                
+                auth.signInWithPopup(provider)
+                    .then(result => {
+                        // Hide loading screen once login is successful
+                        document.getElementById("loading-overlay").style.display = "none";
+                        window.location.href = "landing.html"; // Redirect after successful sign-in
+                    })
+                    .catch(error => {
+                        // Hide loading screen if login fails
+                        document.getElementById("loading-overlay").style.display = "none";
+                        signInBtn.disabled = false; // Re-enable button after failure
+
+                        // Log the error to console for debugging purposes
+                        console.error("Error during sign-in:", error);
+
+                        // Display error message to the user
+                        let errorMessage = "An error occurred during sign-in. Please try again.";
+
+                        if (error.code === 'auth/popup-closed-by-user') {
+                            errorMessage = "The sign-in popup was closed. Please try again.";
+                        } else if (error.code === 'auth/cancelled-popup-request') {
+                            errorMessage = "Sign-in request was cancelled. Please try again.";
+                        } else if (error.code === 'auth/network-request-failed') {
+                            errorMessage = "Network error. Please check your connection and try again.";
+                        } else if (error.code === 'auth/account-exists-with-different-credential') {
+                            errorMessage = "An account already exists with a different credential. Please use a different sign-in method.";
+                        }
+
+                        alert(errorMessage);
+                    });
+            }
+
+
+
+
+            signOutBtn.onclick = () => {
+                auth.signOut().then(() => {
+                    resetUI();
+                    location.reload();
+                });
+            };
+
+
+            function updateUI(user) {
+                if (user) {
+                    userInfo.innerHTML = `<img src="${user.photoURL}" width="50" style="border-radius:50%"><p>Welcome, ${user.displayName}</p>`;
+                    signInBtn.style.display = "none";
+                    signOutBtn.style.display = "block";
+                }
+            }
+
+            function resetUI() {
+                userInfo.innerHTML = "";
+                userId = null;
+                signInBtn.style.display = "block";
+                signOutBtn.style.display = "none";
+            }
+
+            auth.onAuthStateChanged(user => {
+        if (user) {
+            // If user is already signed in, redirect to landing page
+            window.location.href = "landing.html";
+        } else {
+            // Show sign-in content if user is not signed in
+            signInBtn.style.display = "block";
+            signOutBtn.style.display = "none";
+        }
+    });
+
+            signInBtn.addEventListener("click", signInWithGoogle);
+        });
+    </script>
+
+    <style>
+        body {
+            background-image: url("https://static.myfigurecollection.net/upload/pictures/2021/09/26/2864232.gif");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            backdrop-filter: blur(5px);
+            height: 100vh;
+            font-family: "Inconsolata", monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+            cursor: url('https://i.ibb.co/60tk0khC/image-removebg-preview-1-1-optimized.png'), auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        body.loaded {
+            opacity: 1;
+        }
+
+        html {
+            height: 100%;
+            margin: 0;
+        }
+
+        #click-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #click-to-enter {
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            transition: transform 0.5s ease;
+        }
+
+        #click-to-enter:hover {
+            transform: scale(1.1);
+        }
+
+        #main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 50vw;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        @keyframes cardsHoverEffect {
+            0% {
+                transform: translateY(0);
+                box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                transform: translateY(-7px);
+                box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.2);
+            }
+            100% {
+                transform: translateY(0);
+                box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 40vw;
+            height: 35vh;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            animation: cardsHoverEffect 2s infinite ease-in-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 20px 20px 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            max-width: 40vw;
+            height: 10vh;
+            width: 100%;
+            margin-top: 20px;
+            text-align: center;
+            animation: cardsHoverEffect 2s infinite ease-in-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .trademark-links {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .trademark {
+            font-size: 12px;
+            color: #ffcc00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            transition: transform 0.5s ease;
+            text-decoration: none;
+        }
+
+        .trademark:hover {
+            transform: scale(1.1);
+            text-decoration: underline;
+        }
+
+        .music {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        #music-url {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        #music-url:hover {
+            text-decoration: underline;
+        }
+
+        #sign-in-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            background: white;
+            border: 1px solid #ddd;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            max-width: 350px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        #sign-in-btn img {
+            width: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        #sign-in-btn:hover {
+            background-color: #f4f4f4;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        .subtitle {
+            font-size: 18px;
+        }
+
+        #mute-btn {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 50%;
+        }
+
+        #mute-icon {
+            transition: transform 0.3s ease;
+            width: 25px;
+            height: 25px;
+        }
+
+        #mute-btn:hover #mute-icon {
+            transform: scale(1.1);
+        }
+
+        #footer {
+            display: flex;
+            position: fixed;
+            bottom: 20px;
+            font-size: 14px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            text-align: center;
+        }
+
+        #social-buttons {
+            margin-left: 15px;
+            margin-top: 8px;
+        }
+
+        #social-buttons a {
+            display: inline-block;
+        }
+
+        #social-buttons img {
+            width: 30px;
+            height: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        #social-buttons img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Loading Screen */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="user-info"></div>
+    <button id="sign-out-btn" style="display:none;">Sign Out</button>
+
+    <div id="click-overlay" onclick="revealContent()">
+        <p id="click-to-enter">Click to Enter</p>
+    </div>
+
+    <div id="loading-overlay" style="display:none;">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+    
+
+    <div id="main-content">
+
+         <!-- Mute/Unmute Button -->
+        <div id="mute-btn" onclick="toggleMute()" style="position: fixed; top: 10px; left: 10px; cursor: pointer; z-index: 1000;">
+            <img id="mute-icon" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS49Jn2LHracg8eQTJn6MWx9V39QfA9rqmZwg&s" alt="Mute" width="30">
+        </div>
+
+        <div class="cards-container">
+            <div class="card">
+                <div class="header">
+                    <h1 class="title">Welcome to The Chill Zone</h1>
+                    <p class="subtitle">Please sign in with Google to continue</p>
+                </div>
+
+                <button id="sign-in-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google Logo">
+                    Sign in with Google
+                </button>
+
+                <div class="music">
+                    <p>♫ Music: Kainbeats - <a href="https://www.youtube.com/watch?v=iuT8KImN-Rk" target="_blank" id="music-url">Mindscapes</a> ♫</p>
+                </div>
+            </div>
+
+            <div class="card2">
+                <p id="trademark">© 2025 TCZ. All rights reserved.</p>
+                <div class="trademark-links">
+                    <!-- <a href="" target="_blank" class="trademark" id="tos">Terms of Service</a> -->
+                    <!-- <a href="" target="_blank" class="trademark" id="pp">Privacy Policy</a> -->
+                    <a href="" target="_blank" class="trademark" id="cu">Contact Us</a>
+                    <a href="" target="_blank" class="trademark" id="au">About Us</a>
+                    <a href="" target="_blank" class="trademark" id="au">What is it?</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div id="footer">
+            <p>Developed by Kroot Loops</p>
+            <div id="social-buttons">
+                <a href="https://github.com/sskriptz" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" width="30" />
+                </a>
+                <a href="https://discord.com/users/1091883411674763385" target="_blank">
+                    <img src="https://brandlogos.net/wp-content/uploads/2021/11/discord-logo-512x512.png" alt="Discord" width="30" />
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <audio id="background-music" loop>
+        <source src="https://www.dropbox.com/scl/fi/lyej7xmh0yg0hjjvak41d/Kainbeats-mindscapes-Sad-Lofi-Hiphop-EP-TubeRipper.com.mp3?rlkey=nx9sjr4hdkxjsbauo0lbziztl&st=pj5y7808&raw=1" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+            const cardsContainer = document.querySelector(".cards-container");
+            const trademarkLinks = document.querySelectorAll(".trademark");
+            const backButton = document.createElement("button");
+
+            // Style the Back button
+            backButton.innerText = "Back";
+            backButton.id = "back-btn";
+            backButton.style.display = "none";
+            backButton.style.padding = "12px 24px";
+            backButton.style.fontSize = "20px";
+            backButton.style.background = "rgba(0,0,0,0.4)";
+            backButton.style.border = "1px solid #ddd";
+            backButton.style.cursor = "pointer";
+            backButton.style.borderRadius = "5px";
+            backButton.style.position = "absolute";
+            backButton.style.top = "50%";
+            backButton.style.left = "50%";
+            backButton.style.transform = "translate(-50%, -50%)";
+            backButton.style.transition = "opacity 0.5s ease-in-out";
+            backButton.style.color = "white";
+            backButton.style.transition = "transform 0.2s ease-in-out";
+
+
+
+            document.body.appendChild(backButton);
+
+            cardsContainer.style.transition = "opacity 0.5s ease-in-out";
+            backButton.style.transition = "opacity 0.5s ease-in-out";
+
+            // Hide the cards container and show the back button with fade effect
+            trademarkLinks.forEach(link => {
+                link.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    cardsContainer.style.opacity = "0";
+
+                    setTimeout(() => {
+                        cardsContainer.style.display = "none";
+                        backButton.style.display = "block";
+                        setTimeout(() => {
+                            backButton.style.opacity = "1";
+                        }, 50);
+                    }, 500);
+                });
+            });
+
+            // Show the cards container when Back button is clicked
+            backButton.addEventListener("click", () => {
+                backButton.style.opacity = "0";
+
+                setTimeout(() => {
+                    backButton.style.display = "none";
+                    cardsContainer.style.display = "flex";
+                    setTimeout(() => {
+                        cardsContainer.style.opacity = "1";
+                    }, 50);
+                }, 500);
+            });
+
+
+            // Mute/Unmute Functionality
+            let isMuted = false;  // Track mute state
+            const audio = document.getElementById("background-music");
+            const muteIcon = document.getElementById("mute-icon");
+
+            function toggleMute() {
+                if (audio.muted) {
+                    audio.muted = false;
+                    muteIcon.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS49Jn2LHracg8eQTJn6MWx9V39QfA9rqmZwg&s"; // Speaker icon
+                } else {
+                    audio.muted = true;
+                    muteIcon.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZRDX3zAQwjjZ93FfBxSzOmekm9eEno9Do7g&s"; // Mute icon
+                }
+            }
+
+            const muteButton = document.getElementById("mute-btn");
+            muteButton.addEventListener("click", toggleMute);
+
+        });
+
+    </script>
+
+</body>
+</html>
