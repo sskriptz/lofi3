@@ -1462,6 +1462,11 @@ main {
     margin-bottom: 5px;
 }
 
+#usernameChangeWarning {
+    font-size: 0.75rem !important;
+    font-style: italic !important;
+}
+
 .username-change-items {
     display: flex;
     flex-direction: row;
@@ -1659,49 +1664,6 @@ main {
     font-size: 15px;
 }
 
-/* ---------------- */
-
-#pp-customization-pane4 {
-    width: 100%;
-    color: white;
-}
-
-#pp-customization-pane4 fieldset {
-    border-radius: 15px;
-    border: 2px solid #ccc;
-    padding: 15px;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-#pp-customization-pane4 p {
-    color: #ccc;
-    font-size: 1rem;
-    display: block;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.change-pfp-items {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    gap: 10px;
-    width: 100%;
-}
-
-#pfp-save-btn {
-    border: 1px solid white;
-    background-color: transparent;
-    border-radius: 10px;
-    padding: 8px 15px 8px 15px;
-    color: white;
-    width: 20%;
-    font-size: 13px;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-}
-
 
 .profileEditMainPageTooltip {
     position: absolute;
@@ -1792,7 +1754,6 @@ main {
     transform: translate(-50%, -50%);
     width: 50vw;
     display: none;
-    max-height: 50vh;
 }
 
 .auth-section, .username-section {
@@ -1814,10 +1775,10 @@ main {
     margin-bottom: 20px;
 }
 
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-    width: 100%;
+.main-section input[type="email"],
+.main-section input[type="password"],
+.main-section input[type="text"] {
+    width: 50%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ddd;
@@ -1869,18 +1830,18 @@ input[type="text"] {
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: 500px;
+    height: 400px;
 }
 
 .chat-header {
-    padding: 15px;
+    padding: 1px 10px 1px 10px;
     background: #1877f2;
     color: white;
     border-radius: 8px 8px 0 0;
 }
 
 .chat-messages {
-    height: 380px;
+    height: 230px;
     padding: 15px;
     overflow-y: auto;
 }
