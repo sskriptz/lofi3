@@ -490,16 +490,23 @@ async function searchUsers(searchTerm) {
     const currentUserFriends = currentUserData.friends || [];
     
     const usersRef = db.collection('users');
-    const snapshot = await usersRef.where('username', '>=', searchTerm)
-                                .where('username', '<=', searchTerm + '\uf8ff')
-                                .get();
+    // Get all users and filter client-side for better partial matches
+    const snapshot = await usersRef.get();
     const searchResults = document.getElementById('searchResults');
     searchResults.innerHTML = '';
 
     snapshot.forEach(doc => {
         const userData = doc.data();
-        if (doc.id !== currentUser.uid) {
+        // Check if username contains search term (case insensitive)
+        if (
+            userData.username.toLowerCase().includes(searchTerm.toLowerCase()) && // Matches anywhere in username
+            doc.id !== currentUser.uid // Not the current user
+        ) {
             const isAlreadyFriend = currentUserFriends.some(friend => friend.userId === doc.id);
+            const hasPendingRequest = currentUserData.friendRequests?.some(
+                request => request.userId === doc.id && request.status === 'pending'
+            );
+            
             const userCard = document.createElement('div');
             userCard.className = 'user-card';
             userCard.innerHTML = `
@@ -509,8 +516,9 @@ async function searchUsers(searchTerm) {
                         style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     <span>${userData.username}</span>
                 </div>
-                ${isAlreadyFriend ? 
-                    '<button disabled>Already Friends</button>' : 
+                ${
+                    isAlreadyFriend ? '<button disabled>Already Friends</button>' : 
+                    hasPendingRequest ? '<button disabled>Request Pending</button>' :
                     `<button onclick="sendFriendRequest('${doc.id}')">Send Friend Request</button>`
                 }
             `;
@@ -521,6 +529,13 @@ async function searchUsers(searchTerm) {
 
 async function sendFriendRequest(targetUserId) {
     const currentUser = auth.currentUser;
+    
+    // Additional safety check to prevent self-friend requests
+    if (targetUserId === currentUser.uid) {
+        alert('You cannot send a friend request to yourself!');
+        return;
+    }
+    
     try {
         const currentUserDoc = await db.collection('users').doc(currentUser.uid).get();
         const currentUserData = currentUserDoc.data();
@@ -528,14 +543,14 @@ async function sendFriendRequest(targetUserId) {
         const targetUserData = targetUserDoc.data();
 
         // Check if already friends
-        const isAlreadyFriend = currentUserData.friends.some(friend => friend.userId === targetUserId);
+        const isAlreadyFriend = currentUserData.friends?.some(friend => friend.userId === targetUserId);
         if (isAlreadyFriend) {
             alert('You are already friends with this user!');
             return;
         }
 
         // Check if friend request already sent
-        const requestAlreadySent = targetUserData.friendRequests.some(
+        const requestAlreadySent = targetUserData.friendRequests?.some(
             request => request.userId === currentUser.uid && request.status === 'pending'
         );
         if (requestAlreadySent) {
