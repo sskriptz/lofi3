@@ -921,36 +921,80 @@ const weatherButtonsStorm = document.getElementById("weatherButtonsStorm");
 
 
 
-    function enableStorm() {
+    let stormActive = false;
+let lightningInterval;
 
-        if (rainGifImage.style.visibility === "visible") {
-            // Hide the rain GIFs and change button text to "Enable"
-            rainGifImage.style.visibility = "hidden";
-            rainGif.style.visibility = "hidden";
-            lightningGifImage.style.visibility = "hidden";
-            lightningGif.style.visibility = "hidden";
-            weatherButtonsStorm.textContent = "Enable";
+function enableStorm() {
+    if (stormActive) {
+        // Stop the storm
+        clearInterval(lightningInterval);
+        rainGifImage.style.visibility = "hidden";
+        rainGif.style.visibility = "hidden";
+        lightningGifImage.style.visibility = "hidden";
+        lightningGif.style.visibility = "hidden";
+        weatherButtonsStorm.textContent = "Enable";
 
-            rainParticlesCheck.disabled = false;
-            snowParticlesCheck.disabled = false;
-            blizzardWeatherCheck.disabled = false;
-        } else {
-            // Show the rain GIFs and change button text to "Disable"
-            rainGifImage.style.visibility = "visible";
-            rainGif.style.visibility = "visible";
-            lightningGifImage.style.visibility = "visible";
-            lightningGif.style.visibility = "visible";
-            weatherButtonsStorm.textContent = "Disable";
+        rainParticlesCheck.disabled = false;
+        snowParticlesCheck.disabled = false;
+        blizzardWeatherCheck.disabled = false;
+        stormActive = false;
+    } else {
+        // Start the storm
+        rainGifImage.style.visibility = "visible";
+        rainGif.style.visibility = "visible";
+        lightningGifImage.style.visibility = "visible";
+        lightningGif.style.visibility = "visible";
+        weatherButtonsStorm.textContent = "Disable";
 
-            rainParticlesCheck.disabled = true;
-            snowParticlesCheck.disabled = true;
-            blizzardWeatherCheck.disabled = true;
-        }
+        rainParticlesCheck.disabled = true;
+        snowParticlesCheck.disabled = true;
+        blizzardWeatherCheck.disabled = true;
+        stormActive = true;
+
+        // Make the lightning alternate positions continuously
+        lightningInterval = setInterval(() => {
+            let randomPosition = Math.random();
+
+            if (randomPosition < 0.75) {
+                // 75% chance for left or right
+                let isLeftSide = Math.random() < 0.5; // 50% for left, 50% for right
+                if (isLeftSide) {
+                    lightningGifImage.style.left = "10px";  // Move to left side
+                    lightningGifImage.style.transform = "scaleX(1)"; // Normal orientation
+                } else {
+                    lightningGifImage.style.left = "calc(100% - 100px)";  // Move to right side
+                    lightningGifImage.style.transform = "scaleX(-1)"; // Flip horizontally
+                }
+            } else if (randomPosition < 0.9) {
+                // 15% chance for middle-left or middle-right (split equally)
+                let isMiddleLeft = Math.random() < 0.5; // 50% for middle-left, 50% for middle-right
+                if (isMiddleLeft) {
+                    lightningGifImage.style.left = "calc(25% - 50px)";  // Move to middle left
+                    lightningGifImage.style.transform = "scaleX(1)"; // Normal orientation
+                    lightningGifImage.style.transformOrigin = "center"; // Ensure it's straight
+                } else {
+                    lightningGifImage.style.left = "calc(75% - 50px)";  // Move to middle right
+                    lightningGifImage.style.transform = "scaleX(-1)"; // Flip horizontally
+                    lightningGifImage.style.transformOrigin = "center"; // Ensure it's straight
+                }
+            } else {
+                // 5% chance for pure middle
+                lightningGifImage.style.left = "calc(50% - 50px)";  // Move to pure middle
+                lightningGifImage.style.transform = "scaleX(1)"; // Normal orientation
+                lightningGifImage.style.transformOrigin = "center"; // Ensure it's straight
+            }
+
+            // Flash effect with 1.75x longer duration (350ms)
+            lightningGifImage.style.opacity = "1";  // Show
+            setTimeout(() => lightningGifImage.style.opacity = "0", 350); // Hide after 350ms
+        }, 750); // Change position every 750ms (3/4 second)
     }
+}
 
-    if (weatherButtonsStorm) {
-        weatherButtonsStorm.addEventListener("click", enableStorm);
-    }
+// Attach event listener
+if (weatherButtonsStorm) {
+    weatherButtonsStorm.addEventListener("click", enableStorm);
+}
 
     // ------------ END OF WEATHER BUTTONS JS ------------------
 
