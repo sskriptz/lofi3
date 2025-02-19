@@ -1,11 +1,11 @@
 // Initialize Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyBLa2zdt4hxe348WHp-mfgIKwOlgghQS2w",
-    authDomain: "friend-84a46.firebaseapp.com",
-    projectId: "friend-84a46",
-    storageBucket: "friend-84a46.firebasestorage.app",
-    messagingSenderId: "1021505667527",
-    appId: "1:1021505667527:web:7cbb2f03c1bd9f3cd6d9e2"
+  apiKey: "AIzaSyAwUAqTV07AahyfD55owmyAcxDG3TP_KnI",
+  authDomain: "lofi-168cb.firebaseapp.com",
+  projectId: "lofi-168cb",
+  storageBucket: "lofi-168cb.firebasestorage.app",
+  messagingSenderId: "331670095312",
+  appId: "1:331670095312:web:7538041673a10b1b4aa5d5"
 };
 
 firebase.initializeApp(firebaseConfig);
